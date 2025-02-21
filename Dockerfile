@@ -4,8 +4,6 @@ WORKDIR /app
 COPY package.json ./
 RUN npm i
 COPY . .
-RUN ["npx", "drizzle-kit", "generate"] 
-RUN ["npx", "drizzle-kit", "migrate"]
 RUN npm run build
 
 FROM node:20-alpine as runner
