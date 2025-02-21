@@ -4,5 +4,7 @@ services:
       context: .
     ports:
       - 3003:3000
+    volumes:
+      - ./games-backlog.db:/games-backlog.db
     command:
       - npm start 
