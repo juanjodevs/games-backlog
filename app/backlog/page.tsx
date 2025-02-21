@@ -1,0 +1,80 @@
+"use client"
+
+import { useState } from "react"
+import { Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AddGameDialog } from "@/components/add-game-dialog"
+import type { Game, HLTBSearchResult } from "@/lib/types"
+import { GameCard } from "@/components/game-card"
+import { useGameStore } from "@/app/store/game-store"
+
+export default function BacklogPage() {
+  const games = useGameStore((state) => state.games)
+  const addGame = useGameStore((state) => state.addGame)
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleAddGame = (game: HLTBSearchResult, platform: string, completionTime: string) => {
+    const newGame: Game = {
+      id: game.id,
+      title: game.title,
+      cover: game.cover,
+      platform,
+      timeToComplete: parseInt(completionTime),
+      status: "Backlog",
+    }
+    addGame(newGame)
+  }
+
+  const filteredGames = games.filter((game) => game.title.toLowerCase().includes(searchQuery.toLowerCase()))
+
+  return (
+    <div className="container max-w-7xl space-y-6 p-6 mx-auto">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold tracking-tight text-white">Your Collection</h1>
+          <AddGameDialog onAddGame={handleAddGame} />
+        </div>
+        <div className="relative w-full sm:w-96">
+          <Input
+            className="pl-10"
+            placeholder="Search your games..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+        </div>
+      </div>
+
+      <Tabs defaultValue="all" className="space-y-4">
+        <TabsList className="bg-slate-800">
+          <TabsTrigger value="all">All Games</TabsTrigger>
+          <TabsTrigger value="playing">Playing</TabsTrigger>
+          <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="backlog">Backlog</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {filteredGames.map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
+          </div>
+        </TabsContent>
+
+        {["playing", "completed", "backlog"].map((status) => (
+          <TabsContent key={status} value={status}>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {filteredGames
+                .filter((g) => g.status.toLowerCase() === status)
+                .map((game) => (
+                  <GameCard key={game.id} game={game} />
+                ))}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
+  )
+}
+
