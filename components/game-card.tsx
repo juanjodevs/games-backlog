@@ -10,12 +10,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Game } from "@/lib/types"
-import { useGameStore } from "@/app/store/game-store"
 import { formatTime } from "@/lib/utils"
 
-export function GameCard({ game }: { game: Game }) {
+export function GameCard({ game, updateGameStatus }: { game: Game, updateGameStatus: any }) {
   const statuses: Game["status"][] = ["Playing", "Completed", "Backlog"]
-  const updateStatus = useGameStore((state) => state.updateStatus)
 
   return (
     <Card className="group relative overflow-hidden bg-slate-800 text-white">
@@ -36,7 +34,7 @@ export function GameCard({ game }: { game: Game }) {
             {statuses.map((status) => (
               <DropdownMenuItem
                 key={status}
-                onClick={() => updateStatus(game.id, status)}
+                onClick={() => updateGameStatus(game.id, status)}
                 className="flex items-center justify-between"
               >
                 <span

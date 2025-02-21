@@ -1,5 +1,13 @@
-export interface Game {
+export interface User {
   id: number
+  name: string
+  email: string
+  picture: string
+}
+
+export interface Game {
+  id?: number
+  hltbId: number
   title: string
   cover: string
   platform: string
@@ -8,7 +16,7 @@ export interface Game {
 }
 
 export interface HLTBSearchResult {
-  id: number
+  hltbId: number
   title: string
   cover: string
   platforms: string[]

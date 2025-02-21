@@ -1,22 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddGameDialog } from "@/components/add-game-dialog"
 import type { Game, HLTBSearchResult } from "@/lib/types"
 import { GameCard } from "@/components/game-card"
-import { useGameStore } from "@/app/store/game-store"
+import { getGames, addGame, updateGameStatus } from "../actions/games"
 
 export default function BacklogPage() {
-  const games = useGameStore((state) => state.games)
-  const addGame = useGameStore((state) => state.addGame)
+  const [games, setGames] = useState<Game[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
 
   const handleAddGame = (game: HLTBSearchResult, platform: string, completionTime: string) => {
     const newGame: Game = {
-      id: game.id,
+      hltbId: game.hltbId,
       title: game.title,
       cover: game.cover,
       platform,
@@ -24,9 +24,32 @@ export default function BacklogPage() {
       status: "Backlog",
     }
     addGame(newGame)
+    const newGames: Game[] = [...games, newGame]
+    setGames(newGames)
   }
 
-  const filteredGames = games.filter((game) => game.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  const handleUpdateGameStatus = (gameId: number, status: Game['status']) => {
+    updateGameStatus(gameId, status)
+    const newGames: Game[] = games.map((game) => {
+      if (game.id === gameId) {
+        return { ...game, status: status }
+      }
+      return game
+    })
+    setGames(newGames)
+  }
+
+  const showGames = async () => {
+    const games: Game[] = await getGames()
+    setGames(games)
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    showGames()
+  }, [])
+
+  const filteredGames = games.filter((game: Game) => game.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className="container max-w-7xl space-y-6 p-6 mx-auto">
@@ -46,34 +69,39 @@ export default function BacklogPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList className="bg-slate-800">
-          <TabsTrigger value="all">All Games</TabsTrigger>
-          <TabsTrigger value="playing">Playing</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="backlog">Backlog</TabsTrigger>
-        </TabsList>
+      {
+        isLoading ?
+          <div className="pt-20 text-white text-center text-4xl">Loading...</div>
+          :
+          <Tabs defaultValue="all" className="space-y-4">
+            <TabsList className="bg-slate-800">
+              <TabsTrigger value="all">All Games</TabsTrigger>
+              <TabsTrigger value="playing">Playing</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+              <TabsTrigger value="backlog">Backlog</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="all">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {filteredGames.map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))}
-          </div>
-        </TabsContent>
-
-        {["playing", "completed", "backlog"].map((status) => (
-          <TabsContent key={status} value={status}>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-              {filteredGames
-                .filter((g) => g.status.toLowerCase() === status)
-                .map((game) => (
-                  <GameCard key={game.id} game={game} />
+            <TabsContent value="all">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                {filteredGames.map((game) => (
+                  <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} />
                 ))}
-            </div>
-          </TabsContent>
-        ))}
-      </Tabs>
+              </div>
+            </TabsContent>
+
+            {["playing", "completed", "backlog"].map((status) => (
+              <TabsContent key={status} value={status}>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                  {filteredGames
+                    .filter((g) => g.status.toLowerCase() === status)
+                    .map((game) => (
+                      <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} />
+                    ))}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+      }
     </div>
   )
 }
