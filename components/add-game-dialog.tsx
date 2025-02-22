@@ -61,6 +61,7 @@ export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
       setSelectedGame(null)
       setSelectedPlatform("")
       setSelectedTime("")
+      setSelectedStatus("Backlog")
     }
   }
 
