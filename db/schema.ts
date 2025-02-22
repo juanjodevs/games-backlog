@@ -9,7 +9,7 @@ export const usersTable = sqliteTable('users_table', {
 
 export const gamesTable = sqliteTable("games_table", {
   id: int().primaryKey({ autoIncrement: true }),
-  hltbId: int().notNull().unique(),
+  hltbId: int().notNull(),
   title: text().notNull(),
   cover: text().notNull(),
   platform: text().notNull(),
