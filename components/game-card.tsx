@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import type { Game } from "@/lib/types"
 import { formatTime } from "@/lib/utils"
 
-export function GameCard({ game, updateGameStatus }: { game: Game, updateGameStatus: any }) {
+export function GameCard({ game, updateGameStatus, deleteGame }: { game: Game, updateGameStatus: any, deleteGame: any }) {
   const statuses: Game["status"][] = ["Playing", "Completed", "Backlog"]
 
   return (
@@ -51,6 +51,16 @@ export function GameCard({ game, updateGameStatus }: { game: Game, updateGameSta
                 {game.status === status && <Check className="h-4 w-4" />}
               </DropdownMenuItem>
             ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => deleteGame(game.id)}
+              className="flex items-center justify-between"
+            >
+              <span
+                className="text-red-400">
+                Delete
+              </span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

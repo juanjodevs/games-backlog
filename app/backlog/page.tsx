@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AddGameDialog } from "@/components/add-game-dialog"
 import type { Game, HLTBSearchResult } from "@/lib/types"
 import { GameCard } from "@/components/game-card"
-import { getGames, addGame, updateGameStatus } from "../actions/games"
+import { getGames, addGame, updateGameStatus, deleteGame } from "../actions/games"
 
 export default function BacklogPage() {
   const [games, setGames] = useState<Game[]>([])
@@ -38,6 +38,12 @@ export default function BacklogPage() {
       }
       return game
     })
+    setGames(newGames)
+  }
+
+  const handleDeleteGame = (gameId: number) => {
+    deleteGame(gameId)
+    const newGames: Game[] = games.filter((game) => game.id !== gameId)
     setGames(newGames)
   }
 
@@ -92,7 +98,7 @@ export default function BacklogPage() {
                     .filter((g) => g.status.toLowerCase() === status || status === "all")
                     .sort((a, b) => a.title < b.title ? -1 : 1)
                     .map((game) => (
-                      <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} />
+                      <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} deleteGame={handleDeleteGame} />
                     ))}
                 </div>
               </TabsContent>

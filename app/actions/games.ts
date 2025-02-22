@@ -164,5 +164,11 @@ export const updateGameStatus = async (gameId: number, status: Game['status']) =
       })
       .where(eq(gamesTable.id, gameId));
   }
-  revalidatePath('/backlog')
+}
+
+export const deleteGame = async (gameId: number) => {
+  const session = await getServerSession()
+  if (session?.user?.email) {
+    await db.delete(gamesTable).where(eq(gamesTable.id, gameId))
+  }
 }
