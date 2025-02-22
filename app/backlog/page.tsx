@@ -14,14 +14,14 @@ export default function BacklogPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const handleAddGame = async (game: HLTBSearchResult, platform: string, completionTime: string) => {
+  const handleAddGame = async (game: HLTBSearchResult, platform: string, completionTime: string, status: Game['status']) => {
     const newGame: Game = {
       hltbId: game.hltbId,
       title: game.title,
       cover: game.cover,
       platform,
       timeToComplete: parseInt(completionTime),
-      status: "Backlog",
+      status: status,
     }
     const newId = await addGame(newGame)
     if (newId) {
@@ -48,10 +48,12 @@ export default function BacklogPage() {
   }
 
   useEffect(() => {
+    console.log('use effect...')
     showGames()
   }, [])
 
   const filteredGames = games.filter((game: Game) => game.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  console.log(filteredGames)
 
   return (
     <div className="container max-w-7xl space-y-6 p-6 mx-auto">
@@ -83,19 +85,12 @@ export default function BacklogPage() {
               <TabsTrigger value="backlog">Backlog</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {filteredGames.map((game) => (
-                  <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} />
-                ))}
-              </div>
-            </TabsContent>
-
-            {["playing", "completed", "backlog"].map((status) => (
+            {["all", "playing", "completed", "backlog"].map((status) => (
               <TabsContent key={status} value={status}>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                   {filteredGames
-                    .filter((g) => g.status.toLowerCase() === status)
+                    .filter((g) => g.status.toLowerCase() === status || status === "all")
+                    .sort((a, b) => a.title < b.title ? -1 : 1)
                     .map((game) => (
                       <GameCard key={game.id} game={game} updateGameStatus={handleUpdateGameStatus} />
                     ))}

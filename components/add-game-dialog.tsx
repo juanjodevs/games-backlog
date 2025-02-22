@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { HLTBSearchResult } from "@/lib/types"
+import type { Game, HLTBSearchResult } from "@/lib/types"
 import { searchGames } from '@/app/actions/games'
 import { formatTime } from "@/lib/utils"
 
 interface AddGameDialogProps {
-  onAddGame: (game: HLTBSearchResult, platform: string, completionTime: string) => void
+  onAddGame: (game: HLTBSearchResult, platform: string, completionTime: string, status: Game['status']) => void
 }
 
 export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
@@ -22,6 +22,8 @@ export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
   const [selectedGame, setSelectedGame] = useState<HLTBSearchResult | null>(null)
   const [selectedPlatform, setSelectedPlatform] = useState("")
   const [selectedTime, setSelectedTime] = useState("")
+  const [selectedStatus, setSelectedStatus] = useState<Game['status']>("Backlog")
+  const statuses: Game["status"][] = ["Playing", "Completed", "Backlog"]
 
   const handleSearch = async (key: string) => {
     if (key === 'Enter') {
@@ -50,8 +52,8 @@ export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
   }
 
   const handleAddGame = () => {
-    if (selectedGame && selectedPlatform && selectedTime) {
-      onAddGame(selectedGame, selectedPlatform, selectedTime)
+    if (selectedGame && selectedPlatform && selectedTime && selectedStatus) {
+      onAddGame(selectedGame, selectedPlatform, selectedTime, selectedStatus)
       setOpen(false)
       // Reset form
       setQuery("")
@@ -89,7 +91,7 @@ export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
             <div className="max-h-[200px] space-y-2 overflow-auto">
               {results.map((game) => (
                 <button
-                  key={game.id}
+                  key={game.hltbId}
                   className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-accent"
                   onClick={() => handleGameSelect(game)}
                 >
@@ -153,7 +155,20 @@ export function AddGameDialog({ onAddGame }: AddGameDialogProps) {
                 </SelectContent>
               </Select>
 
-              <Button className="w-full" disabled={!selectedPlatform || !selectedTime} onClick={handleAddGame}>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    statuses.map((status) => (
+                      <SelectItem value={status}>{status}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+
+              <Button className="w-full" disabled={!selectedPlatform || !selectedTime || !selectedStatus} onClick={handleAddGame}>
                 Add to Backlog
               </Button>
             </div>
