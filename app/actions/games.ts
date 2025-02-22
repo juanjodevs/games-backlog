@@ -137,8 +137,12 @@ export const addGame = async (game: Game) => {
       ...game,
       ownerEmail: session.user.email
     }
-    await db.insert(gamesTable).values(newGame)
+    const result = await db.insert(gamesTable).values(newGame).returning()
+    if (result) {
+      return result[0].id
+    }
   }
+  return null
 }
 
 export const getGames = async () => {

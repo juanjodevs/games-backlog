@@ -14,7 +14,7 @@ export default function BacklogPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
 
-  const handleAddGame = (game: HLTBSearchResult, platform: string, completionTime: string) => {
+  const handleAddGame = async (game: HLTBSearchResult, platform: string, completionTime: string) => {
     const newGame: Game = {
       hltbId: game.hltbId,
       title: game.title,
@@ -23,9 +23,11 @@ export default function BacklogPage() {
       timeToComplete: parseInt(completionTime),
       status: "Backlog",
     }
-    addGame(newGame)
-    const newGames: Game[] = [...games, newGame]
-    setGames(newGames)
+    const newId = await addGame(newGame)
+    if (newId) {
+      const newGames: Game[] = [...games, { ...newGame, id: newId }]
+      setGames(newGames)
+    }
   }
 
   const handleUpdateGameStatus = (gameId: number, status: Game['status']) => {
