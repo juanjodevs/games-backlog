@@ -75,10 +75,10 @@ export default function BacklogPage() {
           :
           <Tabs defaultValue="all" className="space-y-4">
             <TabsList className="bg-slate-800">
-              <TabsTrigger value="all">All Games</TabsTrigger>
-              <TabsTrigger value="playing">Playing</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
-              <TabsTrigger value="backlog">Backlog</TabsTrigger>
+              <TabsTrigger value="all">All Games ({filteredGames.length})</TabsTrigger>
+              <TabsTrigger value="playing">Playing ({filteredGames.filter((g) => g.status === 'Playing').length})</TabsTrigger>
+              <TabsTrigger value="completed">Completed ({filteredGames.filter((g) => g.status === 'Completed').length})</TabsTrigger>
+              <TabsTrigger value="backlog">Backlog ({filteredGames.filter((g) => g.status === 'Backlog').length})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="all">
