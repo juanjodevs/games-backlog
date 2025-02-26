@@ -54,12 +54,10 @@ export default function BacklogPage() {
   }
 
   useEffect(() => {
-    console.log('use effect...')
     showGames()
   }, [])
 
   const filteredGames = games.filter((game: Game) => game.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  console.log(filteredGames)
 
   return (
     <div className="container max-w-7xl space-y-6 p-6 mx-auto">
